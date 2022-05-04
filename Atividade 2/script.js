@@ -1,10 +1,16 @@
+// Create body
+var body = document.getElementsByTagName("body")[0];
+
+// Paragraph explaining instructions
+const para = document.createElement("h2");
+para.innerText = "Click on a circle to delete it";
+para.style = "text-align: center;"
+body.appendChild(para);
+
 // Create button that adds one circle to the screen
 var button_add = document.createElement("button");
 button_add.innerHTML = "Add circle";
 button_add.style = "display: block; margin: 5% auto;"
-
-// Create body
-var body = document.getElementsByTagName("body")[0];
 
 // Add buttons to body
 body.appendChild(button_add);
