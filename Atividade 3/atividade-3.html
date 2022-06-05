@@ -1,116 +1,37 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Desenho procedural em SVG</title>
 
-        <script type = "text/javascript" src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src = "https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
-    </head>    
+<head>
+    <title> Desenho Procedural em SVG </title>
 
-    <body>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <div id = "draggable-1">
-            <svg width = 800 height = 600 style = "border:1px solid gray">
-                <rect 
-                    width = "50" height = "50" 
-                    style = "fill: rgb(0,0,255); stroke-width: 3; stroke:rgb(0,0,0)"
-                    x = "50%" y = "50%"
-                    />
-            </svg>
-        </div>
-        
-        <div id = "draggable-2" style = "width: 180px; border-style: dotted;">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">  
+</head>
 
-            <label>Variation: </label>
-            <br>
-            <input
-                type = "radio"
-                name = "variation"
-                id = "variation-0"
-                checked
-                style = "margin-bottom: 20px;"
-            />
-            <label for = "variation-0">0</label>
-            <input
-                type = "radio"
-                name = "variation"
-                id = "variation-1"
-            />
-            <label for = "variation-1">1</label>
-            <input
-                type = "radio"
-                name = "variation"
-                id = "variation-2"
-            />
-            <label for = "variation-2">2</label>
-            <input
-            type = "radio"
-            name = "variation"
-            id = "variation-3"
-            />
-            <label for = "variation-3">3</label>
-            
-            <br>
+<body>
 
-            <label for = "ratio">Ratio:</label>
-            <input
-                type = "range"
-                min  = "0"
-                max = "1"
-                value = "0.5"
-                step = "0.01"
-                id = "ratio"
-                onchange = "updateTextInput(this.value, 'ratio-input');"
-            />
-            <input type = "text" id = "ratio-input" value = "0.5" style = "margin-bottom: 20px;">
+    <div class='draggable' id='root'></div>
+    <div class='draggable'>
+        <form id='displayData'>
+            <input type="radio" class="form" id="first" name="squarePoint" value="0" />
+            <label for="first"> 0 </label>
+            <input type="radio" class="form" id="second" name="squarePoint" value="1" />
+            <label for="second"> 1 </label>
+            <input type="radio" class="form" id="third" name="squarePoint" value="2" />
+            <label for="third"> 2 </label>
+            <input type="radio" class="form" id="fourth" name="squarePoint" value="3" />
+            <label for="fourth"> 3 </label> <br />
+            <div id='squares'></div> <span id='squaresLabel'></span>
+            <div id='angle'></div> <span id='angleLabel'></span>
+        </form>
+    </div>
 
-            <br>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+    <script src="atividade-3.js"> </script>
+</body>
 
-            <label for = "n">N:</label>
-            <input
-                type = "range"
-                min  = "0"
-                max = "30"
-                value = "1"
-                step = "1"
-                id = "n"
-                onchange = "updateTextInput(this.value, 'n-input');"
-            />
-            <input type = "text" id = "n-input" value = "1">
-
-        </div>
-
-
-        <script type = "text/javascript">
-
-            function updateTextInput(val, id) {
-                document.getElementById(id).value = val; 
-            }
-
-            
-            var positions = JSON.parse(localStorage.positions || "{}");
-            if (positions["#draggable-1"]) $("#draggable-1").css(positions["#draggable-1"]);
-            if (positions["#draggable-2"]) $("#draggable-2").css(positions["#draggable-2"]);
-        
-            $("#draggable-1").draggable({
-                scroll: true, 
-                stop: function (event, ui) {
-                    let positions = JSON.parse(localStorage.positions || "{}");
-                    positions["#draggable-1"] = ui.position;
-                    localStorage.positions = JSON.stringify(positions);
-                }
-            });
-
-            $("#draggable-2").draggable({
-                scroll: true, 
-                stop: function (event, ui) {
-                    let positions = JSON.parse(localStorage.positions || "{}");
-                    positions["#draggable-2"] = ui.position;
-                    localStorage.positions = JSON.stringify(positions);
-                }
-            });
-                
-        </script>
-
-    </body>
 </html>
