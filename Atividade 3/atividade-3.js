@@ -1,143 +1,3 @@
-function setCookie(cname, cvalue, exdays) {
-  var d = new Date();
-  exdays = exdays || 365;
-  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
-  var expires = "expires=" + d.toUTCString();
-  document.cookie = `${cname}=${encodeURIComponent(cvalue)};${expires};path=/`;
-}
-
-
-function getCookie(cname) {
-  var name = cname.trimStart() + "=";
-  var decodedCookie = decodeURIComponent(document.cookie);
-  var ca = decodedCookie.split(";");
-
-  let cookie = ca.find((row) => row.trim().startsWith(name));
-  return cookie == undefined ? "" : cookie.split("=")[1];
-}
-
-
-function updateSliderLabel(slider) {
-  let label = slider.labels[0];
-  let lblstr = label.htmlFor;
-  let lblvalue = slider.value;
-  let extra = "";
-
-  if (lblstr == "ratio") {
-    extra = `(${rad2deg(toAngle(lblvalue))
-      .toFixed(1)
-      .padStart(4, "0")}Â° âŸº ${toLength(lblvalue).toFixed(2)})`;
-    lblvalue = (+lblvalue).toFixed(2);
-  } else {
-    lblvalue = lblvalue.padStart(2, "0");
-    extra = "&#9634;";
-  }
-
-  label.innerHTML = `${lblstr} = ${lblvalue} ${extra}`;
-}
-
-
-function setSlider(gCookie, sCookie, selector = "body") {
-  let cookies = gCookie("squares_cookies") || JSON.stringify(["0", "4", "0"]);
-  let [val, val2, val3] = JSON.parse(cookies);
-  let slider = document.querySelector("#ratio");
-  let slider2 = document.querySelector("#sqr");
-  let variation = document.querySelectorAll('input[name="squarePoint"]');
-
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  const w = urlParams.get("w") || "800";
-  const h = urlParams.get("h") || "600";
-
-  let r = document.querySelector(":root");
-  r.style.setProperty("--wsvg", `${w}px`);
-
-  const svg = d3
-    .select(selector)
-    .append("svg")
-    .lower()
-    .attr("style", "border: 3px solid gray")
-    .attr("width", w)
-    .attr("height", h);
-
-  slider.value = val;
-  slider2.value = val2;
-  variation[val3].checked = true;
-  var vari = val3;
-
-  variation.forEach((elem) => {
-    elem.addEventListener("click", function (event) {
-      vari = event.target.value;
-      let p = [slider.value, slider2.value, vari];
-      drawSqrs(svg, ...p);
-      sCookie("squares_cookies", JSON.stringify(p), 365);
-    });
-  });
-
-  slider.addEventListener("input", () => {
-    let p = [slider.value, slider2.value, vari];
-    updateSliderLabel(slider);
-    drawSqrs(svg, ...p);
-    sCookie("squares_cookies", JSON.stringify(p), 365);
-  });
-
-  slider2.addEventListener("input", () => {
-    let p = [slider.value, slider2.value, vari];
-    updateSliderLabel(slider2);
-    drawSqrs(svg, ...p);
-    sCookie("squares_cookies", JSON.stringify(p), 365);
-  });
-
-  updateSliderLabel(slider);
-  updateSliderLabel(slider2);
-  drawSqrs(svg, val, val2, vari);
-}
-
-
-function drawSqrs(svg, ratio, n, variation) {
-  const [width, height] = [svg.attr("width"), svg.attr("height")];
-  let ang = toAngle(ratio);
-  let len = toLength(ratio);
-
-  let p = [width / 2, height / 2];
-  let side = width / 10;
-  let trans;
-  switch (+variation) {
-    case 0:
-      trans = "";
-      break;
-    case 1:
-      trans = `translate(${side},0)`;
-      break;
-    case 2:
-      trans = `translate(${side},${side})`;
-      break;
-    case 3:
-      trans = `translate(0,${side})`;
-      break;
-  }
-
-  const colors = ["red", "yellow", "blue", "green", "magenta"];
-
-  svg.selectAll("g").remove();
-
-  let g = svg.append("g").attr("transform", `translate(${p[0]}, ${p[1]})`);
-
-  for (let i = 0; i < n; i++) {
-    g.append("rect")
-      .attr("fill", colors[i % colors.length])
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("width", side)
-      .attr("height", side)
-      .attr("opacity", 0.7);
-    g = g
-      .append("g")
-      .attr("transform", `${trans} scale(${len}) rotate(${rad2deg(ang)})`);
-  }
-}
-
-
 function dragAndSave(id) {
   if (screen.width <= 800) return;
 
@@ -154,3 +14,167 @@ function dragAndSave(id) {
     },
   });
 }
+
+
+const WIDTH = 80;
+const SCALE = Math.PI / 2;
+
+function setupFormLabels() {
+  const angle = $("#angle").slider("option", "value");
+  const squareCount = $("#squares").slider("option", "value");
+
+  $(`#angleLabel`).text(`Ângulo: ${angle}`);
+  $(`#squaresLabel`).text(`N: ${squareCount}`);
+}
+
+function generateRandomColor() {
+  const source = '0123456789abcdef';
+  var result = '#';
+
+  for (let i = 0; i < 6; i++)
+    result += source[Math.floor(Math.random() * 15)];
+  return result;
+}
+
+function setupFormListeners() {
+  $(`#squares`).change(updateScreen);
+  $(`#angle`).change(updateScreen);
+  $(`input[name='squarePoint']`).change(updateScreen);
+}
+
+function updateScreen() {
+  setupFormLabels();
+  generateSVG();
+  saveToLocalStorage();
+}
+
+function generateSVG() {
+  const root = document.getElementById('root');
+  root.innerHTML = '';
+  const svg = makeRootSVG();
+
+  const startingRect = makeRect(0, 0, WIDTH);
+  const startingG = makeTranslateGTransform(400, 300);
+  const N = $(`#squares`).slider("option", "value");
+
+  const rest = generateStructure(1, N);
+
+  startingG.append(startingRect);
+  startingG.append(rest);
+  svg.append(startingG);
+  root.append(svg);
+}
+
+function calculateScale(angle) {
+  const radians = angle * Math.PI / 180;
+  if (angle <= 45)
+    return 1 / Math.cos(radians);
+  else return 1 / Math.sin(radians);
+}
+
+function makeGodTransform(x, y, w, a) {
+  const point = parseInt($(`input[name='squarePoint']:checked`).val());
+  const scale = calculateScale(a);
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  switch (point) {
+    case 0:
+      g.setAttributeNS(null, 'transform', `translate(${x},${y}) scale(${scale}) rotate(${a})`);
+      break;
+    case 1:
+      g.setAttributeNS(null, 'transform', `translate(${x + w},${y}) scale(${scale}) rotate(${a})`);
+      break;
+    case 2:
+      g.setAttributeNS(null, 'transform', `translate(${x + w},${y + w}) scale(${scale}) rotate(${a})`);
+      break;
+    case 3:
+      g.setAttributeNS(null, 'transform', `translate(${x},${y + w}) scale(${scale}) rotate(${a})`);
+      break;
+  }
+  return g;
+}
+
+function generateStructure(index, max) {
+  const angle = $(`#angle`).slider("option", "value");
+  const g = makeGodTransform(0, 0, 80, angle);
+  const rect = makeRect(0, 0, 80);
+
+  g.append(rect);
+  if (index < max) {
+    const prox = generateStructure(index + 1, max);
+    g.append(prox);
+  }
+
+  return g;
+}
+
+function makeTranslateGTransform(x, y) {
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttributeNS(null, 'transform', `translate(${x},${y})`);
+  return g;
+}
+
+function makeRootSVG() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  
+  svg.setAttributeNS(null, 'width', '800');
+  svg.setAttributeNS(null, 'height', '600');
+  svg.setAttributeNS(null, 'style', 'border:1px solid black');
+  return svg;
+}
+
+function makeRect(x, y, w) {
+  console.log(`[makeRect] called with ${x}, ${y}, ${w}`);
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttributeNS(null, 'width', w);
+  rect.setAttributeNS(null, 'height', w);
+  rect.setAttributeNS(null, 'x', x);
+  rect.setAttributeNS(null, 'y', y);
+  rect.setAttributeNS(null, 'fill', generateRandomColor());
+  rect.setAttributeNS(null, 'opacity', '0.7');
+  return rect;
+}
+
+function setupForm() {
+  const angle = localStorage.getItem('angle');
+  const squares = localStorage.getItem('squares');
+  const point = localStorage.getItem('point');
+
+  console.log(`[setupForm] ${angle}, ${squares} and ${point} loaded from localStorage`)
+
+  $("#squares").slider({
+    slide: updateScreen,
+    change: updateScreen,
+    max: 50,
+    min: 0,
+    value: squares === null ? 0 : squares,
+  });
+
+  $("#angle").slider({
+    slide: updateScreen,
+    change: updateScreen,
+    max: 90,
+    min: 0,
+    value: angle === null ? 0 : angle,
+  });
+
+  $(`input[name="squarePoint"][value="${point === null ? 0 : point}"]`).prop("checked", true);
+  $("input[name='squarePoint']").checkboxradio();
+  $(`input[name='squarePoint']`).change(updateScreen);
+
+}
+
+function saveToLocalStorage() {
+  const angle = $(`#angle`).slider("option", "value");
+  const squares = $(`#squares`).slider("option", "value");
+  const startingPoint = parseInt($(`input[name='squarePoint']:checked`).val());
+
+  localStorage.setItem("angle", angle);
+  localStorage.setItem("squares", squares);
+  localStorage.setItem("point", startingPoint);
+}
+
+
+setupForm();
+setupDraggables();
+setupFormLabels();
+generateSVG();

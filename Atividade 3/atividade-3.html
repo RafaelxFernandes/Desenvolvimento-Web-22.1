@@ -1,82 +1,62 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Desenho procedural em SVG</title>
+        <script type = "text/javascript" src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src = "https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+    </head>    
+    <body>
 
-<head>
-    <title> Desenho Procedural em SVG </title>
-
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <script src="https://d3js.org/d3.v7.js"></script>
-
-    <style>
-        :root {
-            --width: 250px;
-            --wsvg: 800px;
-        }
-        body {
-            margin: 20px;
-        }
-        #ratio,
-        #sqr,
-        #value,
-        #value2 {
-            display: block;
-            width: var(--width);
-            text-align: center;
-            margin: 0 auto;
-        }
-        #draggable,
-        #svg {
-            width: var(--wsvg);
-            cursor: move;
-            text-align: center;
-            color: #8b2439;
-            padding-top: 50px;
-            margin-left: 0%;
-        }
-    </style>
-
-</head>
-
-<body>
-
-    <div id="svg"></div>
-    <div id="draggable">
-
-        <div id="radioBtn">
-            <p>Ponto fixo</p>
-            <label for="first"> 0 </label>
-            <input type="radio" id="first" name="squarePoint" value="0" checked />
-            <label for="second"> 1 </label>
-            <input type="radio" id="second" name="squarePoint" value="1" />
-            <label for="third"> 2 </label>
-            <input type="radio" id="third" name="squarePoint" value="2" />
-            <label for="fourth"> 3 </label>
-            <input type="radio" id="fourth" name="squarePoint" value="3" />
+        <div class='draggable' id='root'></div>
+        <div class='draggable-2'>
+            <form id='displayData'>
+                
+                <input type="radio" class="form" id="first" name="squarePoint" value="0" />
+                <label for="first"> 0 </label>
+            
+                <input type="radio" class="form" id="second" name="squarePoint" value="1" />
+                <label for="second"> 1 </label>
+                
+                <input type="radio" class="form" id="third" name="squarePoint" value="2" />
+                <label for="third"> 2 </label>
+                
+                <input type="radio" class="form" id="fourth" name="squarePoint" value="3" />
+                <label for="fourth"> 3 </label> <br />
+                
+                <div id='squares'></div> <span id='squaresLabel'></span>
+                <div id='angle'></div> <span id='angleLabel'></span>
+            </form>
         </div>
 
-        <label for="ratio" id="value"></label>
-        <input type="range" min="0" max="1" value="0.5" step="0.01" name="ratio" id="ratio">
+        <script src="atividade-3.js"></script>
+        <script type = "text/javascript">
+            function updateTextInput(val, id) {
+                document.getElementById(id).value = val; 
+            }
+            
+            var positions = JSON.parse(localStorage.positions || "{}");
+            if (positions[".draggable"]) $(".draggable").css(positions[".draggable"]);
 
-        <label for="sqr" id="value2"></label>
-        <input type="range" min="1" max="20" value="2" step="1" name="sqr" id="sqr">
-    </div>
+            $(".draggable").draggable({
+                scroll: true, 
+                stop: function (event, ui) {
+                    let positions = JSON.parse(localStorage.positions || "{}");
+                    positions[".draggable"] = ui.position;
+                    localStorage.positions = JSON.stringify(positions);
+                }
+            });
 
-    <script nomodule src="atividade-3.js"></script>
-    <script nomodule>
-        window.onload = () => {
-            setSlider(getCookie, setCookie, "#svg");
-        }
-    </script>
-    </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="atividade-3.js">
-        dragAndSave("#svg");
-        dragAndSave("#draggable");
-    </script>
+            if (positions[".draggable-2"]) $(".draggable-2").css(positions[".draggable-2"]);
 
+            $(".draggable-2").draggable({
+                scroll: true, 
+                stop: function (event, ui) {
+                    let positions = JSON.parse(localStorage.positions || "{}");
+                    positions[".draggable-2"] = ui.position;
+                    localStorage.positions = JSON.stringify(positions);
+                }
+            });
+                
+        </script>
     </body>
-
 </html>
