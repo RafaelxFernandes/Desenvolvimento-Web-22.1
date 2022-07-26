@@ -17,7 +17,7 @@ function dragAndSave(id) {
 
 
 const WIDTH = 80;
-const SCALE = Math.PI / 2;
+const SCALE = Math.PI/ 2;
 
 function setupFormLabels() {
   const angle = $("#angle").slider("option", "value");
@@ -67,10 +67,8 @@ function generateSVG() {
 
 function calculateScale(angle) {
   const radians = angle * Math.PI / 180;
-  if (angle <= 45)
-    return 1 / Math.cos(radians);
-  else return 1 / Math.sin(radians);
-}
+  return 1 / Math.cos(radians);
+  }
 
 function makeGodTransform(x, y, w, a) {
   const point = parseInt($(`input[name='squarePoint']:checked`).val());
@@ -115,7 +113,6 @@ function makeTranslateGTransform(x, y) {
 
 function makeRootSVG() {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  
   svg.setAttributeNS(null, 'width', '800');
   svg.setAttributeNS(null, 'height', '600');
   svg.setAttributeNS(null, 'style', 'border:1px solid black');
@@ -123,7 +120,6 @@ function makeRootSVG() {
 }
 
 function makeRect(x, y, w) {
-  console.log(`[makeRect] called with ${x}, ${y}, ${w}`);
   const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   rect.setAttributeNS(null, 'width', w);
   rect.setAttributeNS(null, 'height', w);
@@ -138,8 +134,6 @@ function setupForm() {
   const angle = localStorage.getItem('angle');
   const squares = localStorage.getItem('squares');
   const point = localStorage.getItem('point');
-
-  console.log(`[setupForm] ${angle}, ${squares} and ${point} loaded from localStorage`)
 
   $("#squares").slider({
     slide: updateScreen,
@@ -159,6 +153,7 @@ function setupForm() {
 
   $(`input[name="squarePoint"][value="${point === null ? 0 : point}"]`).prop("checked", true);
   $("input[name='squarePoint']").checkboxradio();
+
   $(`input[name='squarePoint']`).change(updateScreen);
 
 }
@@ -168,6 +163,8 @@ function saveToLocalStorage() {
   const squares = $(`#squares`).slider("option", "value");
   const startingPoint = parseInt($(`input[name='squarePoint']:checked`).val());
 
+  console.log(`[saveToLocalStorage] storing ${angle}, ${squares} and ${startingPoint}`)
+
   localStorage.setItem("angle", angle);
   localStorage.setItem("squares", squares);
   localStorage.setItem("point", startingPoint);
@@ -175,6 +172,5 @@ function saveToLocalStorage() {
 
 
 setupForm();
-setupDraggables();
 setupFormLabels();
 generateSVG();
