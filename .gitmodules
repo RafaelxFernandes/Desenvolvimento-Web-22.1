@@ -1,0 +1,6 @@
+[submodule "bonieky-live-javascript"]
+	path = bonieky-live-javascript
+	url = https://github.com/ivanfilho21/bonieky-live-javascript.git
+[submodule "Atividade 4/bonieky-live-javascript"]
+	path = Atividade 4/bonieky-live-javascript
+	url = https://github.com/ivanfilho21/bonieky-live-javascript.git
